@@ -1,4 +1,11 @@
 # Web-Script Programming
+
+## Disclaimer
+
+All the following text (but this Disclaimer) was written by the lecturers of the unit called _Web-Script Programming_
+Only the code on the `index.js` file was written by me.
+This website can be found at https://nicekor.github.io/uop-webClient/
+
 ## Coursework Challenge 1 (ws_cwk1)
 
 Welcome to the first coursework for the Web Script Programming unit.  This folder contains all the challenges that you must _try_ to complete.
