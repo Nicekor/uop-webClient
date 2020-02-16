@@ -1,73 +1,62 @@
 'use strict';
 
+// global variables
+const MAX_LEADERBOARD_PLAYERS = 10;
+
 function id() {
-  return "UP876126";
+  return 'UP876126';
 }
 
 function init() {
-  window.nick.addEventListener("input", nickChanged);
-  canvas.addEventListener("click", mouseClick)
+  document.getElementById('nick').addEventListener('input', nickChanged);
+  canvas.addEventListener('click', mouseClick);
 }
 
-window.addEventListener("load", init);
+window.addEventListener('load', init);
 
-function updateLeaderBoard(newLeaderBoard, me) {
-  let leaderBoard = document.getElementById("top10");
-  cleanLeaderBoard(leaderBoard);
-  changeLeaderBoardPlayers(leaderBoard, newLeaderBoard);
-  highlightMe(leaderBoard, newLeaderBoard, me);
-}
+function updateLeaderBoard(playersNames, me) {
+  const top10El = document.getElementById('top10');
+  const playersCollection = top10El.children;
 
-function cleanLeaderBoard(leaderBoard) {
-  const leaderBoardPlayers = leaderBoard.children.length;
-  while(leaderBoard.firstChild){
-    leaderBoard.firstChild.remove();
-  }
-}
+  cleanLeaderBoard(playersCollection);
 
-function changeLeaderBoardPlayers(leaderBoard, newLeaderBoard) {
-  const maxNumberOfPlayers = newLeaderBoard.length <= 10 ? newLeaderBoard.length : 10;
-  for (let i = 0; i < maxNumberOfPlayers; i++) {
-    let node = document.createElement("li");
-    let textNode = document.createTextNode(newLeaderBoard[i]);
-    node.appendChild(textNode);
-    leaderBoard.appendChild(node);
-  }
-}
+  playersNames.forEach((playerName, i) => {
+    if (i >= MAX_LEADERBOARD_PLAYERS) return;
 
-function highlightMe(leaderBoard, newLeaderBoard, me) {
-  newLeaderBoard.forEach(function (name, index){
-    if(me === name){
-      leaderBoard.children[index].className = "myself";
+    const newPlayerNode = document.createElement('li');
+    newPlayerNode.textContent = playerName;
+
+    if (playerName === me) {
+      newPlayerNode.classList.add('myself');
     }
+
+    top10El.appendChild(newPlayerNode);
   });
 }
 
-function nickChanged() {
-  window.playername.textContent = window.nick.value;
+function nickChanged(e) {
+  const nickname = e.target.value;
+  document.getElementById('playername').textContent = nickname;
 }
 
 function updateStep() {
-  const scaleRange = document.getElementById("scalerange");
-  step = Number(scaleRange.value);
+  step = +document.getElementById('scalerange').value;
 }
 
-function leaders(maxNumberOfResults) {
-  let players = document.querySelectorAll("#top10 li");
-  let playersList = [];
-  const numOfResults = players.length <= maxNumberOfResults ? players.length : maxNumberOfResults;
-  for (let i = 0; i < numOfResults; i++) {
-    playersList.push(players[i].textContent);
-  }
-  return playersList;
+function leaders(resultsNum) {
+  const playersCollection = document.getElementById('top10').children;
+  return [...playersCollection]
+    .splice(0, resultsNum)
+    .map(player => player.textContent);
 }
+
+const cleanLeaderBoard = playersCollection =>
+  [...playersCollection].forEach(player => player.remove());
 
 function mouseMoved(e) {
-
   // position of the pointer within the canvas
-  pointer.x = (e.pageX - canvas.offsetLeft);
-  pointer.y = (e.pageY - canvas.offsetTop);
-
+  pointer.x = e.pageX - canvas.offsetLeft;
+  pointer.y = e.pageY - canvas.offsetTop;
 
   // position of the pointer relative to the centre of the canvas
   pointer.xOffset = pointer.x - halfWidth;
@@ -76,24 +65,30 @@ function mouseMoved(e) {
   // TODO calulate angle and unit vector radius
   // based on mouse.xOffset and mouse.yOffset .
   pointer.radius =
-    Math.min(
-      Math.sqrt(
-        Math.pow(pointer.xOffset, 2) +
-        Math.pow(pointer.yOffset, 2)
-      ),
+    (Math.min(
+      Math.sqrt(Math.pow(pointer.xOffset, 2) + Math.pow(pointer.yOffset, 2)),
       limitOfAcceleration
-    ) / limitOfAcceleration * step;
+    ) /
+      limitOfAcceleration) *
+    step;
 
   pointer.angle = Math.atan2(pointer.yOffset, pointer.xOffset).toFixed(3);
-  pointer.degrees = Math.abs(parseInt(pointer.angle * 180 / Math.PI));
+  pointer.degrees = Math.abs(parseInt((pointer.angle * 180) / Math.PI));
 
   redraw();
 }
 
 function drawPointerPos() {
-  context.strokeStyle = "black";
+  context.strokeStyle = 'black';
   context.beginPath();
-  context.arc(pointer.x, pointer.y, (pointer.radius / step * 50) / 2, 0, 2 * Math.PI, false);
+  context.arc(
+    pointer.x,
+    pointer.y,
+    ((pointer.radius / step) * 50) / 2,
+    0,
+    2 * Math.PI,
+    false
+  );
   context.closePath();
   context.stroke();
 }
@@ -112,21 +107,21 @@ function mouseClick() {
 }
 
 function handleKeys(e) {
-  if (window.nick === document.activeElement) return; // if the nick element is focused skip the function
-  if (e.code == "KeyD") {
+  if (document.getElementById('nick') === document.activeElement) return;
+  if (e.code == 'KeyD') {
     debug = !debug;
-    window.controls.classList.toggle("hidden");
+    window.controls.classList.toggle('hidden');
   }
-  if (e.code == "KeyL") {
-    window.leaderboard.classList.toggle("hidden");
+  if (e.code == 'KeyL') {
+    window.leaderboard.classList.toggle('hidden');
   }
-  if (e.code == "KeyP") {
-    window.player.classList.toggle("hidden");
+  if (e.code == 'KeyP') {
+    window.player.classList.toggle('hidden');
   }
 
   if (e.target == window.nick) {
-    if (e.code == "Enter") {
-      window.player.classList.add("hidden");
+    if (e.code == 'Enter') {
+      window.player.classList.add('hidden');
     }
   }
 }
